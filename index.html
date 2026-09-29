@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Prueba - Google Sheets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        #mensaje {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Registro de Preferencias</h2>
+        <form id="myForm">
+            <div class="form-group">
+                <label for="fruta">Fruta Favorita:</label>
+                <input type="text" id="fruta" name="fruta" required placeholder="Ej. Plátano, Mango...">
+            </div>
+            
+            <div class="form-group">
+                <label for="bebida">Bebida Favorita:</label>
+                <input type="text" id="bebida" name="bebida" required placeholder="Ej. Café, Jugo de naranja...">
+            </div>
+            
+            <button type="submit" id="btnEnviar">Enviar Datos</button>
+        </form>
+        <div id="mensaje"></div>
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzMMjhvV4unnqcIqXVNjAuuD6cmw9YaDDJUGMQzHCb6Vt09UNCYs-T56K5Kz4XXuhB4/exec'; // Pega aquí tu URL de Google Apps Script
+        const form = document.getElementById('myForm');
+        const btnEnviar = document.getElementById('btnEnviar');
+        const mensaje = document.getElementById('mensaje');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Enviando...';
+            mensaje.style.color = '#555';
+            mensaje.textContent = 'Guardando registro...';
+
+            const datos = {
+                fruta: document.getElementById('fruta').value,
+                bebida: document.getElementById('bebida').value
+            };
+
+            // Usamos no-cors o fetch directo con text/plain para evitar bloqueos CORS de Google
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(() => {
+                mensaje.style.color = 'green';
+                mensaje.textContent = '¡Datos guardados con éxito en Sheets!';
+                form.reset();
+                setTimeout(() => { mensaje.textContent = ''; }, 4000);
+            })
+            .catch(error => {
+                mensaje.style.color = 'red';
+                mensaje.textContent = 'Hubo un error al enviar.';
+                console.error('Error!', error.message);
+            })
+            .finally(() => {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar Datos';
+            });
+        });
+    </script>
+</body>
+</html>
