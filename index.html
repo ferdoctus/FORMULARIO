@@ -71,6 +71,11 @@
         <h2>Registro de Preferencias</h2>
         <form id="myForm">
             <div class="form-group">
+                <label for="fechaVisible">Fecha y Hora de Registro:</label>
+                <input type="text" id="fechaVisible" disabled style="background-color: #e9ecef; color: #6c757d; cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
                 <label for="fruta">Fruta Favorita:</label>
                 <input type="text" id="fruta" name="fruta" required placeholder="Ej. Plátano, Mango...">
             </div>
@@ -86,10 +91,26 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzMMjhvV4unnqcIqXVNjAuuD6cmw9YaDDJUGMQzHCb6Vt09UNCYs-T56K5Kz4XXuhB4/exec'; // Pega aquí tu URL de Google Apps Script
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzMMjhvV4unnqcIqXVNjAuuD6cmw9YaDDJUGMQzHCb6Vt09UNCYs-T56K5Kz4XXuhB4/exec';
         const form = document.getElementById('myForm');
         const btnEnviar = document.getElementById('btnEnviar');
         const mensaje = document.getElementById('mensaje');
+        const inputFecha = document.getElementById('fechaVisible');
+
+        // Función para formatear la fecha actual en texto legible
+        function obtenerFechaActual() {
+            const ahora = new Date();
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const anio = ahora.getFullYear();
+            const horas = String(ahora.getHours()).padStart(2, '0');
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            const segundos = String(ahora.getSeconds()).padStart(2, '0');
+            return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+        }
+
+        // Mostrar la fecha en el campo gris al cargar la página
+        inputFecha.value = obtenerFechaActual();
 
         form.addEventListener('submit', e => {
             e.preventDefault();
@@ -103,7 +124,6 @@
                 bebida: document.getElementById('bebida').value
             };
 
-            // Usamos no-cors o fetch directo con text/plain para evitar bloqueos CORS de Google
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -116,6 +136,7 @@
                 mensaje.style.color = 'green';
                 mensaje.textContent = '¡Datos guardados con éxito en Sheets!';
                 form.reset();
+                inputFecha.value = obtenerFechaActual(); // Volver a colocar la fecha actual tras limpiar
                 setTimeout(() => { mensaje.textContent = ''; }, 4000);
             })
             .catch(error => {
